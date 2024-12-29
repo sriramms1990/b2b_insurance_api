@@ -1,0 +1,174 @@
+paths:
+  /api/quotes:
+    get:
+      summary: Get all quotes
+      tags: [Quotes]
+      responses:
+        200:
+          description: List of quotes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Quote'
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    post:
+      summary: Generate a new quote
+      description: |
+        Generates an insurance quote with automatic premium calculation based on:
+        * Coverage type base rates
+        * Company size
+        * Industry risk factors
+        * Coverage amount
+      tags: [Quotes]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuoteInput'
+      responses:
+        201:
+          description: Quote generated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/BaseResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Quote'
+        400:
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/quotes/{id}:
+    get:
+      summary: Get quote by ID
+      tags: [Quotes]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Quote ID
+      responses:
+        200:
+          description: Quote details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quote'
+        404:
+          description: Quote not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    QuoteInput:
+      type: object
+      required:
+        - businessName
+        - coverageType
+        - coverageAmount
+        - businessDetails
+      properties:
+        businessName:
+          type: string
+          description: Name of the business
+          example: "Tech Corp Inc"
+        coverageType:
+          type: string
+          enum: [liability, property, workers-comp, cyber]
+          description: |
+            Insurance coverage type with base rates:
+            * liability: $20/month
+            * property: $25/month
+            * workers-comp: $15/month
+            * cyber: $30/month
+        coverageAmount:
+          type: number
+          minimum: 100000
+          description: Total coverage amount in dollars
+          example: 1000000
+        businessDetails:
+          type: object
+          required:
+            - industry
+            - employees
+            - revenue
+          properties:
+            industry:
+              type: string
+              enum: [technology, healthcare, retail, manufacturing, finance, construction]
+              description: |
+                Industry with risk multipliers:
+                * technology: 1.2x
+                * healthcare: 1.5x
+                * retail: 1.0x
+                * manufacturing: 1.3x
+                * finance: 1.4x
+                * construction: 1.6x
+            employees:
+              type: number
+              minimum: 1
+              description: |
+                Employee count with size multipliers:
+                * 1-10: 1x
+                * 11-50: 1.5x
+                * 51-200: 2x
+                * 201-1000: 3x
+                * 1000+: 4x
+            revenue:
+              type: number
+              minimum: 0
+              description: Annual revenue in dollars
+    
+    Quote:
+      allOf:
+        - $ref: '#/components/schemas/QuoteInput'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            monthlyPremium:
+              type: number
+              description: Calculated monthly premium
+            status:
+              type: string
+              enum: [pending, approved, rejected]
+            createdAt:
+              type: string
+              format: date-time
+            expiresAt:
+              type: string
+              format: date-time
+          required:
+            - id
+            - monthlyPremium
+            - status
+            - createdAt
+            - expiresAt

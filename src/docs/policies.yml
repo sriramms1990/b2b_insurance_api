@@ -1,0 +1,74 @@
+paths:
+  /api/policies:
+    get:
+      summary: Get all policies
+      tags: [Policies]
+      responses:
+        200:
+          description: List of policies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Policy'
+    post:
+      summary: Create a new policy
+      tags: [Policies]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyInput'
+      responses:
+        201:
+          description: Policy created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+        400:
+          description: Invalid input
+
+components:
+  schemas:
+    PolicyInput:
+      type: object
+      required:
+        - businessName
+        - coverageType
+        - coverageAmount
+        - startDate
+        - endDate
+      properties:
+        businessName:
+          type: string
+          example: "Tech Corp Inc"
+        coverageType:
+          type: string
+          enum: [liability, property, workers-comp, cyber]
+          example: "cyber"
+        coverageAmount:
+          type: number
+          example: 1000000
+        startDate:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+        endDate:
+          type: string
+          format: date-time
+          example: "2024-12-31T23:59:59Z"
+    
+    Policy:
+      allOf:
+        - $ref: '#/components/schemas/PolicyInput'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            createdAt:
+              type: string
+              format: date-time

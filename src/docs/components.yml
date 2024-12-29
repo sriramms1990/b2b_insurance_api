@@ -1,0 +1,31 @@
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              msg:
+                type: string
+              param:
+                type: string
+              location:
+                type: string
+      example:
+        errors:
+          - msg: "Invalid coverage type"
+            param: "coverageType"
+            location: "body"
+    
+    BaseResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success

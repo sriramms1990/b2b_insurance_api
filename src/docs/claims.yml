@@ -1,0 +1,72 @@
+paths:
+  /api/claims:
+    get:
+      summary: Get all claims
+      tags: [Claims]
+      responses:
+        200:
+          description: List of claims
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Claim'
+    post:
+      summary: Submit a new claim
+      tags: [Claims]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimInput'
+      responses:
+        201:
+          description: Claim submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Claim'
+        400:
+          description: Invalid input
+
+components:
+  schemas:
+    ClaimInput:
+      type: object
+      required:
+        - policyId
+        - incidentDate
+        - description
+        - claimAmount
+      properties:
+        policyId:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        incidentDate:
+          type: string
+          format: date-time
+          example: "2024-02-15T10:30:00Z"
+        description:
+          type: string
+          example: "Data breach incident"
+        claimAmount:
+          type: number
+          example: 50000
+    
+    Claim:
+      allOf:
+        - $ref: '#/components/schemas/ClaimInput'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            status:
+              type: string
+              enum: [submitted, under-review, approved, rejected]
+            createdAt:
+              type: string
+              format: date-time
