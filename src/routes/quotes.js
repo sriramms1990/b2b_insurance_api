@@ -7,11 +7,6 @@ const router = express.Router();
 // In-memory storage
 const quotes = [];
 
-// Get all quotes
-router.get('/', (req, res) => {
-  res.json(quotes);
-});
-
 // Generate new quote
 router.post('/', validateQuote, (req, res) => {
   const monthlyPremium = calculateMonthlyPremium(req.body);
